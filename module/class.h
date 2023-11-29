@@ -1,7 +1,9 @@
 #pragma once
 #include <string>
 #include <iostream>
-#include <cstddef> // for size_t
+#include <cstddef>
+
+typedef u_short sa_family_t;
 
 class AddrInfo {
 public:
@@ -42,7 +44,13 @@ class sockAddrIn6 {
 };
 
 class In6Addr {
-    unsigned char s6Addr[16];
+    unsigned char s6Addr[16];   // IPv6 address
 };
 
+class SockAddrStorage {
+    sa_family_t ssFamily; // address family
+    char __ss_pad1[4];    // padding
+    int64_t __ss_align;   // alignment
+    char __ss_pad2[4];    // more padding
+};
 
