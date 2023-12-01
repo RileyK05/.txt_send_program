@@ -36,6 +36,22 @@ int main() {
 
     WSACleanup();
 
+    SockAddrIn sa;
+    SockAddrIn6 sa6;
+
+    inet_pton(AF_INET, "10.12.110.57", &(sa.sinAddr.sAddr));
+    inet_pton(AF_INET6, "2001:db8:63b3:1::3490", &(sa6.sin6Addr.s6Addr));
+
+    char ip4[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &(sa.sinAddr), ip4, INET_ADDRSTRLEN);
+
+    char ip6[INET6_ADDRSTRLEN]; // space to hold the IPv6 string
+    inet_ntop(AF_INET6, &(sa6.sin6Addr), ip6, INET6_ADDRSTRLEN);
+
+    std::cout << "The IPv4 address is: " << ip4 << std::endl;
+    std::cout << "The IPv6 address is: " << ip6 << std::endl;
+
+
     return 0;
 }
 
