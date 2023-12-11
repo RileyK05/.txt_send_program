@@ -24,9 +24,9 @@ public:
     int aiSockType;     // SOCK_STREAM, SOCK_DGRAM
     int aiProtocol;     // use 0 for "any"
     size_t aiAddrlen;   // size of aiAddr in bytes
-    SockAddr *aiAddr;   // struct sockaddr_in or _in6
-    char *aiCanonName;  // full canonical hostname
-    AddrInfo *aiNext;   // linked list, next node
+    SockAddr* aiAddr;   // struct sockaddr_in or _in6
+    char* aiCanonName;  // full canonical hostname
+    AddrInfo* aiNext;   // linked list, next node
 };
 
 class InAddr {
@@ -65,4 +65,3 @@ public:
     int64_t __ss_align;   // alignment
     char __ss_pad2[4];    // more padding
 };
-

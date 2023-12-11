@@ -1,3 +1,4 @@
+
 #define WIN32_LEAN_AND_MEAN
 #include <iostream>
 #include <cmath>
@@ -12,7 +13,6 @@
 #include <vector>
 #include <chrono>
 #include <thread>
-#include "Class.h"
 #include <compare>
 #include <stdio.h>
 #include <windows.h>
@@ -20,60 +20,50 @@
 #include <ws2tcpip.h>
 
 
-int main(int argc, char* argv[]) {
+int main() {
+    // Initialize Winsock
     WSADATA wsaData;
-
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-        std::cerr << "WSAStartup failed" << std::endl;
-        return 1;
+        std::cerr << "Failed to initialize Winsock" << std::endl;
+        return -1;
     }
 
-    if (argc != 2) {
-        std::cerr << "usage: showip hostname\n";
+    // Create a socket
+    SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+    if (clientSocket == INVALID_SOCKET) {
+        std::cerr << "Error creating socket" << std::endl;
         WSACleanup();
-        return 2;
+        return -1;
     }
 
-    struct addrinfo hints, *res, *p;
-    int status;
-    char ipstr[INET6_ADDRSTRLEN];
+    // Set up the server address and port
+    sockaddr_in serverAddress;
+    serverAddress.sin_family = AF_INET;
 
-    memset(&hints, 0, sizeof hints);
-    hints.ai_family = AF_UNSPEC; // AF_INET or AF_INET6 to force version
-    hints.ai_socktype = SOCK_STREAM;
-
-    if ((status = getaddrinfo(argv[1], NULL, &hints, &res)) != 0) {
-        std::cerr << "getaddrinfo: " << gai_strerror(status) << std::endl;
+    // Use inet_pton to convert the IP address to binary form
+    if (inet_pton(AF_INET, "127.0.0.1", &(serverAddress.sin_addr)) != 1) {
+        std::cerr << "Invalid IP address" << std::endl;
+        closesocket(clientSocket);
         WSACleanup();
-        return 3;
+        return -1;
     }
 
-    std::cout << "IP addresses for " << argv[1] << ":\n\n";
+    serverAddress.sin_port = htons(8080);  // Use the same port as the server
 
-    for (p = res; p != NULL; p = p->ai_next) {
-        void* addr;
-        const char* ipver;
-
-        // get the pointer to the address itself,
-        // different fields in IPv4 and IPv6:
-        if (p->ai_family == AF_INET) { // IPv4
-            struct sockaddr_in* ipv4 = (struct sockaddr_in*)p->ai_addr;
-            addr = &(ipv4->sin_addr);
-            ipver = "IPv4";
-        }
-
-        else { // IPv6
-            struct sockaddr_in6* ipv6 = (struct sockaddr_in6*)p->ai_addr;
-            addr = &(ipv6->sin6_addr);
-            ipver = "IPv6";
-        }
-
-        // convert the IP to a string and print it:
-        inet_ntop(p->ai_family, addr, ipstr, sizeof ipstr);
-        std::cout << " " << ipver << ": " << ipstr << std::endl;
+    // Connect to the server
+    if (connect(clientSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == SOCKET_ERROR) {
+        std::cerr << "Error connecting to server" << std::endl;
+        closesocket(clientSocket);
+        WSACleanup();
+        return -1;
     }
 
-    freeaddrinfo(res); // free the linked list
+    std::cout << "Connected to the server" << std::endl;
+
+    // Now you can send and receive data using clientSocket
+
+    // Close the socket
+    closesocket(clientSocket);
     WSACleanup();
 
     return 0;
